@@ -83,32 +83,51 @@ class BitvavoApiClient:
                 if not self._api_key or not self._api_secret:
                     raise UpdateFailed("Private endpoint requires api_key/api_secret")
 
-                timestamp_ms = str(int(time.time() * 1000))
-                headers.update(
-                    {
-                        "Bitvavo-Access-Key": self._api_key,
-                        "Bitvavo-Access-Timestamp": timestamp_ms,
-                        "Bitvavo-Access-Signature": self._signature(timestamp_ms, method, f"/v2{path}", body),
-                        "Bitvavo-Access-Window": ACCESS_WINDOW_MS,
-                    }
-                )
+            signature_paths = [f"/v2{path}"] if private else [""]
+            if private:
+                signature_paths.append(path)
 
             try:
-                async with self._session.request(
-                    method=method,
-                    url=url,
-                    params=params or {},
-                    headers=headers,
-                    data=body,
-                    timeout=REQUEST_TIMEOUT,
-                ) as response:
-                    if response.status in (429, 500, 502, 503, 504) and attempt < MAX_RETRIES:
-                        await asyncio.sleep(self._retry_delay(attempt))
-                        continue
+                for idx, signature_path in enumerate(signature_paths):
+                    request_headers = dict(headers)
+                    if private:
+                        timestamp_ms = str(int(time.time() * 1000))
+                        request_headers.update(
+                            {
+                                "Bitvavo-Access-Key": self._api_key,
+                                "Bitvavo-Access-Timestamp": timestamp_ms,
+                                "Bitvavo-Access-Signature": self._signature(timestamp_ms, method, signature_path, body),
+                                "Bitvavo-Access-Window": ACCESS_WINDOW_MS,
+                            }
+                        )
 
-                    response.raise_for_status()
-                    return await response.json(content_type=None)
+                    async with self._session.request(
+                        method=method,
+                        url=url,
+                        params=params or {},
+                        headers=request_headers,
+                        data=body,
+                        timeout=REQUEST_TIMEOUT,
+                    ) as response:
+                        if response.status == 403 and private and idx == 0:
+                            # Fallback for environments where path-only signature is expected.
+                            continue
+
+                        if response.status in (429, 500, 502, 503, 504) and attempt < MAX_RETRIES:
+                            await asyncio.sleep(self._retry_delay(attempt))
+                            break
+
+                        if response.status >= 400:
+                            error_text = await response.text()
+                            raise UpdateFailed(f"Request failed for {path}: {response.status} {error_text}")
+
+                        return await response.json(content_type=None)
             except (aiohttp.ClientError, asyncio.TimeoutError) as err:
+                last_error = err
+                if attempt >= MAX_RETRIES:
+                    break
+                await asyncio.sleep(self._retry_delay(attempt))
+            except UpdateFailed as err:
                 last_error = err
                 if attempt >= MAX_RETRIES:
                     break
@@ -169,11 +188,11 @@ class BitvavoApiClient:
         return prices
 
     async def async_get_balances(self) -> list[dict[str, Any]]:
-        payload = await self._request_private("GET", "/account")
+        payload = await self._request_private("GET", "/balance")
         return payload if isinstance(payload, list) else []
 
     async def async_get_fees(self) -> dict[str, Any]:
-        payload = await self._request_private("GET", "/account/fees")
+        payload = await self._request_private("GET", "/account")
         return self._normalize_fees(payload)
 
     @staticmethod

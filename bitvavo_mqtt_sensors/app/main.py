@@ -70,11 +70,11 @@ class BitvavoClient:
         return response.json()
 
     def get_balances(self) -> list[dict[str, Any]]:
-        data = self._request_private("GET", "/account")
+        data = self._request_private("GET", "/balance")
         return data if isinstance(data, list) else []
 
     def get_fees(self) -> dict[str, Any]:
-        data = self._request_private("GET", "/account/fees")
+        data = self._request_private("GET", "/account")
         if isinstance(data, list):
             return data[0] if data else {}
         if isinstance(data, dict):
