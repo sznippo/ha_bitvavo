@@ -9,6 +9,7 @@ from homeassistant.data_entry_flow import FlowResult
 from .const import (
     CONF_API_KEY,
     CONF_API_SECRET,
+    CONF_CHANGE_24H_PRECISION,
     CONF_ENABLE_BALANCE_SENSORS,
     CONF_ENABLE_FEE_SENSORS,
     CONF_ENABLE_HEALTH_SENSORS,
@@ -22,6 +23,7 @@ from .const import (
     DEFAULT_ENABLE_HEALTH_SENSORS,
     DEFAULT_ENABLE_MARKET_SENSORS,
     DEFAULT_ENABLE_PORTFOLIO_SENSORS,
+    DEFAULT_CHANGE_24H_PRECISION,
     DEFAULT_MARKETS,
     DEFAULT_SCAN_INTERVAL,
     DEFAULT_SOFT_CLEANUP,
@@ -54,6 +56,10 @@ class BitvavoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: igno
                 vol.Required(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): vol.All(
                     vol.Coerce(int),
                     vol.Range(min=10, max=3600),
+                ),
+                vol.Required(CONF_CHANGE_24H_PRECISION, default=DEFAULT_CHANGE_24H_PRECISION): vol.All(
+                    vol.Coerce(int),
+                    vol.Range(min=0, max=8),
                 ),
                 vol.Required(CONF_SOFT_CLEANUP, default=DEFAULT_SOFT_CLEANUP): bool,
                 vol.Required(CONF_ENABLE_MARKET_SENSORS, default=DEFAULT_ENABLE_MARKET_SENSORS): bool,
@@ -97,6 +103,13 @@ class BitvavoOptionsFlowHandler(config_entries.OptionsFlow):
                         self._config_entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL),
                     ),
                 ): vol.All(vol.Coerce(int), vol.Range(min=10, max=3600)),
+                vol.Required(
+                    CONF_CHANGE_24H_PRECISION,
+                    default=self._config_entry.options.get(
+                        CONF_CHANGE_24H_PRECISION,
+                        self._config_entry.data.get(CONF_CHANGE_24H_PRECISION, DEFAULT_CHANGE_24H_PRECISION),
+                    ),
+                ): vol.All(vol.Coerce(int), vol.Range(min=0, max=8)),
                 vol.Required(
                     CONF_SOFT_CLEANUP,
                     default=self._config_entry.options.get(

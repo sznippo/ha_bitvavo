@@ -7,6 +7,7 @@
         "data": {
           "markets": "Maerkte (kommagetrennt, z.B. BTC-EUR,ETH-EUR)",
           "scan_interval": "Aktualisierungsintervall (Sekunden)",
+          "change_24h_precision": "Dezimalstellen fuer 24h Change (0-8)",
           "soft_cleanup": "Entfernte Marktsensoren deaktivieren statt loeschen",
           "enable_market_sensors": "Marktsensoren aktivieren",
           "enable_balance_sensors": "Portfolio-Sensoren (Bestand) aktivieren",
@@ -26,6 +27,7 @@
         "data": {
           "markets": "Maerkte",
           "scan_interval": "Aktualisierungsintervall (Sekunden)",
+          "change_24h_precision": "Dezimalstellen fuer 24h Change (0-8)",
           "soft_cleanup": "Entfernte Marktsensoren deaktivieren statt loeschen",
           "enable_market_sensors": "Marktsensoren aktivieren",
           "enable_balance_sensors": "Portfolio-Sensoren (Bestand) aktivieren",

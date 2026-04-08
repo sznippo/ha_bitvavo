@@ -7,6 +7,7 @@
         "data": {
           "markets": "Markets (comma-separated, e.g. BTC-EUR,ETH-EUR)",
           "scan_interval": "Update interval (seconds)",
+          "change_24h_precision": "24h change decimal places (0-8)",
           "soft_cleanup": "Disable removed market sensors instead of deleting",
           "enable_market_sensors": "Enable market sensors",
           "enable_balance_sensors": "Enable balance sensors",
@@ -26,6 +27,7 @@
         "data": {
           "markets": "Markets",
           "scan_interval": "Update interval (seconds)",
+          "change_24h_precision": "24h change decimal places (0-8)",
           "soft_cleanup": "Disable removed market sensors instead of deleting",
           "enable_market_sensors": "Enable market sensors",
           "enable_balance_sensors": "Enable balance sensors",

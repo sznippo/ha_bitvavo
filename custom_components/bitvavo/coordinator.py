@@ -200,9 +200,17 @@ class BitvavoApiClient:
         # Bitvavo fee responses can differ by account type/API version.
         # Normalize to: makeFee, takeFee, tier
         candidate: dict[str, Any] = {}
+        fee_section: dict[str, Any] = {}
 
         if isinstance(payload, dict):
             candidate = payload
+            if isinstance(payload.get("fees"), dict):
+                fee_section = payload["fees"]
+            elif isinstance(payload.get("fees"), list):
+                for row in payload["fees"]:
+                    if isinstance(row, dict):
+                        fee_section = row
+                        break
         elif isinstance(payload, list):
             for item in payload:
                 if not isinstance(item, dict):
@@ -210,32 +218,50 @@ class BitvavoApiClient:
                 if any(k in item for k in ("makeFee", "makerFee", "maker", "takeFee", "takerFee", "taker", "tier", "feeTier")):
                     candidate = item
                     break
+                nested_fees = item.get("fees")
+                if isinstance(nested_fees, dict):
+                    candidate = item
+                    fee_section = nested_fees
+                    break
+                if isinstance(nested_fees, list):
+                    for row in nested_fees:
+                        if isinstance(row, dict):
+                            candidate = item
+                            fee_section = row
+                            break
+                    if fee_section:
+                        break
             if not candidate and payload and isinstance(payload[0], dict):
                 candidate = payload[0]
 
         if not candidate:
             return {}
 
+        source: dict[str, Any] = dict(candidate)
+        source.update(fee_section)
+
         normalized: dict[str, Any] = {}
 
-        if "makeFee" in candidate:
-            normalized["makeFee"] = candidate["makeFee"]
-        elif "makerFee" in candidate:
-            normalized["makeFee"] = candidate["makerFee"]
-        elif "maker" in candidate:
-            normalized["makeFee"] = candidate["maker"]
+        if "makeFee" in source:
+            normalized["makeFee"] = source["makeFee"]
+        elif "makerFee" in source:
+            normalized["makeFee"] = source["makerFee"]
+        elif "maker" in source:
+            normalized["makeFee"] = source["maker"]
 
-        if "takeFee" in candidate:
-            normalized["takeFee"] = candidate["takeFee"]
-        elif "takerFee" in candidate:
-            normalized["takeFee"] = candidate["takerFee"]
-        elif "taker" in candidate:
-            normalized["takeFee"] = candidate["taker"]
+        if "takeFee" in source:
+            normalized["takeFee"] = source["takeFee"]
+        elif "takerFee" in source:
+            normalized["takeFee"] = source["takerFee"]
+        elif "taker" in source:
+            normalized["takeFee"] = source["taker"]
 
-        if "tier" in candidate:
-            normalized["tier"] = candidate["tier"]
-        elif "feeTier" in candidate:
-            normalized["tier"] = candidate["feeTier"]
+        if "tier" in source:
+            normalized["tier"] = source["tier"]
+        elif "feeTier" in source:
+            normalized["tier"] = source["feeTier"]
+        elif "feeTierId" in source:
+            normalized["tier"] = source["feeTierId"]
 
         return normalized
 
@@ -305,6 +331,7 @@ class BitvavoDataUpdateCoordinator(DataUpdateCoordinator[BitvavoData]):
         fees: dict[str, Any] = {}
         portfolio: dict[str, Decimal] = {
             "available_eur": Decimal("0"),
+            "converted_available_eur": Decimal("0"),
             "total_eur": Decimal("0"),
         }
         data_mode = "public_only"
@@ -341,7 +368,8 @@ class BitvavoDataUpdateCoordinator(DataUpdateCoordinator[BitvavoData]):
         balances: list[dict[str, Any]],
         prices: dict[str, Decimal],
     ) -> dict[str, Decimal]:
-        available_total = Decimal("0")
+        cash_available_eur = Decimal("0")
+        converted_available_total = Decimal("0")
         total = Decimal("0")
 
         for row in balances:
@@ -363,15 +391,17 @@ class BitvavoDataUpdateCoordinator(DataUpdateCoordinator[BitvavoData]):
 
             if symbol == "EUR":
                 price_eur = Decimal("1")
+                cash_available_eur += available
             else:
                 price_eur = prices.get(f"{symbol}-EUR")
                 if price_eur is None:
                     continue
 
-            available_total += available * price_eur
+            converted_available_total += available * price_eur
             total += balance_total * price_eur
 
         return {
-            "available_eur": available_total,
+            "available_eur": cash_available_eur,
+            "converted_available_eur": converted_available_total,
             "total_eur": total,
         }

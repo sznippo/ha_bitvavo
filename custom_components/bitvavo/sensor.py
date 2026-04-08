@@ -13,11 +13,13 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
+    CONF_CHANGE_24H_PRECISION,
     CONF_ENABLE_BALANCE_SENSORS,
     CONF_ENABLE_FEE_SENSORS,
     CONF_ENABLE_HEALTH_SENSORS,
     CONF_ENABLE_MARKET_SENSORS,
     CONF_ENABLE_PORTFOLIO_SENSORS,
+    DEFAULT_CHANGE_24H_PRECISION,
     DEFAULT_ENABLE_BALANCE_SENSORS,
     DEFAULT_ENABLE_FEE_SENSORS,
     DEFAULT_ENABLE_HEALTH_SENSORS,
@@ -117,6 +119,7 @@ async def async_setup_entry(
     enable_fee_sensors = bool(options.get(CONF_ENABLE_FEE_SENSORS, DEFAULT_ENABLE_FEE_SENSORS))
     enable_health_sensors = bool(options.get(CONF_ENABLE_HEALTH_SENSORS, DEFAULT_ENABLE_HEALTH_SENSORS))
     enable_portfolio_sensors = bool(options.get(CONF_ENABLE_PORTFOLIO_SENSORS, DEFAULT_ENABLE_PORTFOLIO_SENSORS))
+    change_24h_precision = int(options.get(CONF_CHANGE_24H_PRECISION, DEFAULT_CHANGE_24H_PRECISION))
 
     entities: list[SensorEntity] = []
 
@@ -141,6 +144,7 @@ async def async_setup_entry(
                         market=market,
                         description=desc,
                         native_unit=unit,
+                        change_24h_precision=change_24h_precision,
                     )
                 )
 
@@ -151,7 +155,13 @@ async def async_setup_entry(
     if enable_portfolio_sensors:
         entities.extend(
             [
-                BitvavoPortfolioSensor(coordinator, entry.entry_id, "available_eur", "Portfolio Available EUR"),
+                BitvavoPortfolioSensor(coordinator, entry.entry_id, "available_eur", "Cash Available EUR"),
+                BitvavoPortfolioSensor(
+                    coordinator,
+                    entry.entry_id,
+                    "converted_available_eur",
+                    "Portfolio Available Converted EUR",
+                ),
                 BitvavoPortfolioSensor(coordinator, entry.entry_id, "total_eur", "Portfolio Total EUR"),
             ]
         )
@@ -219,6 +229,7 @@ class BitvavoMarketSensor(BitvavoBaseEntity):
         market: str,
         description: BitvavoMarketSensorDescription,
         native_unit: str | None,
+        change_24h_precision: int,
     ) -> None:
         super().__init__(coordinator, entry_id)
         self.entity_description = description
@@ -226,6 +237,8 @@ class BitvavoMarketSensor(BitvavoBaseEntity):
         self._attr_unique_id = f"{entry_id}_{market}_{description.key}"
         self._attr_name = f"{market} {description.name}"
         self._attr_native_unit_of_measurement = native_unit
+        if description.key == "change_24h":
+            self._attr_suggested_display_precision = change_24h_precision
         if description.key in ("last", "volume", "volume_quote", "high", "low", "vwap", "bid", "ask", "spread", "spread_pct"):
             self._attr_state_class = "measurement"
 
@@ -314,10 +327,10 @@ class BitvavoFeeSensor(BitvavoBaseEntity):
     @property
     def native_value(self) -> Any:
         fees = self.coordinator.data.fees
-        if self._fee_key not in fees:
+        if self._fee_key not in fees and self._fee_key != "tier":
             return None
 
-        value = fees[self._fee_key]
+        value = fees.get(self._fee_key)
         if self._fee_key in ("makeFee", "takeFee"):
             try:
                 return Decimal(str(value)) * Decimal("100")
@@ -325,12 +338,14 @@ class BitvavoFeeSensor(BitvavoBaseEntity):
                 return None
 
         if self._fee_key == "tier":
-            return str(value)
+            return str(value) if value is not None else "unknown"
 
         return value
 
     @property
     def available(self) -> bool:
+        if self._fee_key == "tier":
+            return True
         return self._fee_key in self.coordinator.data.fees
 
 
