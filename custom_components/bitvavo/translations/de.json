@@ -1,0 +1,27 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Bitvavo",
+        "description": "Konfiguriere Bitvavo-Maerkte und optional API-Zugangsdaten.",
+        "data": {
+          "markets": "Maerkte (kommagetrennt, z.B. BTC-EUR,ETH-EUR)",
+          "scan_interval": "Aktualisierungsintervall (Sekunden)",
+          "api_key": "API Key (optional, aktiviert Kontostaende/Gebuehren)",
+          "api_secret": "API Secret (optional, aktiviert Kontostaende/Gebuehren)"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Bitvavo Optionen",
+        "data": {
+          "markets": "Maerkte",
+          "scan_interval": "Aktualisierungsintervall (Sekunden)"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Bitvavo",
+        "description": "Configure Bitvavo markets and optional API credentials.",
+        "data": {
+          "markets": "Markets (comma-separated, e.g. BTC-EUR,ETH-EUR)",
+          "scan_interval": "Update interval (seconds)",
+          "api_key": "API key (optional, enables balances/fees)",
+          "api_secret": "API secret (optional, enables balances/fees)"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Bitvavo options",
+        "data": {
+          "markets": "Markets",
+          "scan_interval": "Update interval (seconds)"
+        }
+      }
+    }
+  }
+}
