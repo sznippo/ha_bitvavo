@@ -1,0 +1,27 @@
+refresh_data:
+  name: Refresh Data
+  description: Trigger an immediate data refresh for one or all Bitvavo entries.
+  fields:
+    entry_id:
+      name: Entry ID
+      description: Optional config entry ID. If omitted all Bitvavo entries are refreshed.
+      required: false
+      selector:
+        text:
+
+set_markets:
+  name: Set Markets
+  description: Update configured markets at runtime and reload matching Bitvavo entries.
+  fields:
+    markets:
+      name: Markets
+      description: Comma-separated markets, for example BTC-EUR,ETH-EUR,SOL-EUR.
+      required: true
+      selector:
+        text:
+    entry_id:
+      name: Entry ID
+      description: Optional config entry ID. If omitted the markets are applied to all Bitvavo entries.
+      required: false
+      selector:
+        text:

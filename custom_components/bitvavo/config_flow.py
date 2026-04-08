@@ -9,10 +9,22 @@ from homeassistant.data_entry_flow import FlowResult
 from .const import (
     CONF_API_KEY,
     CONF_API_SECRET,
+    CONF_ENABLE_BALANCE_SENSORS,
+    CONF_ENABLE_FEE_SENSORS,
+    CONF_ENABLE_HEALTH_SENSORS,
+    CONF_ENABLE_MARKET_SENSORS,
+    CONF_ENABLE_PORTFOLIO_SENSORS,
     CONF_MARKETS,
     CONF_SCAN_INTERVAL,
+    CONF_SOFT_CLEANUP,
+    DEFAULT_ENABLE_BALANCE_SENSORS,
+    DEFAULT_ENABLE_FEE_SENSORS,
+    DEFAULT_ENABLE_HEALTH_SENSORS,
+    DEFAULT_ENABLE_MARKET_SENSORS,
+    DEFAULT_ENABLE_PORTFOLIO_SENSORS,
     DEFAULT_MARKETS,
     DEFAULT_SCAN_INTERVAL,
+    DEFAULT_SOFT_CLEANUP,
     DOMAIN,
 )
 
@@ -43,6 +55,12 @@ class BitvavoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: igno
                     vol.Coerce(int),
                     vol.Range(min=10, max=3600),
                 ),
+                vol.Required(CONF_SOFT_CLEANUP, default=DEFAULT_SOFT_CLEANUP): bool,
+                vol.Required(CONF_ENABLE_MARKET_SENSORS, default=DEFAULT_ENABLE_MARKET_SENSORS): bool,
+                vol.Required(CONF_ENABLE_BALANCE_SENSORS, default=DEFAULT_ENABLE_BALANCE_SENSORS): bool,
+                vol.Required(CONF_ENABLE_FEE_SENSORS, default=DEFAULT_ENABLE_FEE_SENSORS): bool,
+                vol.Required(CONF_ENABLE_HEALTH_SENSORS, default=DEFAULT_ENABLE_HEALTH_SENSORS): bool,
+                vol.Required(CONF_ENABLE_PORTFOLIO_SENSORS, default=DEFAULT_ENABLE_PORTFOLIO_SENSORS): bool,
                 vol.Optional(CONF_API_KEY, default=""): str,
                 vol.Optional(CONF_API_SECRET, default=""): str,
             }
@@ -79,6 +97,48 @@ class BitvavoOptionsFlowHandler(config_entries.OptionsFlow):
                         self._config_entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL),
                     ),
                 ): vol.All(vol.Coerce(int), vol.Range(min=10, max=3600)),
+                vol.Required(
+                    CONF_SOFT_CLEANUP,
+                    default=self._config_entry.options.get(
+                        CONF_SOFT_CLEANUP,
+                        self._config_entry.data.get(CONF_SOFT_CLEANUP, DEFAULT_SOFT_CLEANUP),
+                    ),
+                ): bool,
+                vol.Required(
+                    CONF_ENABLE_MARKET_SENSORS,
+                    default=self._config_entry.options.get(
+                        CONF_ENABLE_MARKET_SENSORS,
+                        self._config_entry.data.get(CONF_ENABLE_MARKET_SENSORS, DEFAULT_ENABLE_MARKET_SENSORS),
+                    ),
+                ): bool,
+                vol.Required(
+                    CONF_ENABLE_BALANCE_SENSORS,
+                    default=self._config_entry.options.get(
+                        CONF_ENABLE_BALANCE_SENSORS,
+                        self._config_entry.data.get(CONF_ENABLE_BALANCE_SENSORS, DEFAULT_ENABLE_BALANCE_SENSORS),
+                    ),
+                ): bool,
+                vol.Required(
+                    CONF_ENABLE_FEE_SENSORS,
+                    default=self._config_entry.options.get(
+                        CONF_ENABLE_FEE_SENSORS,
+                        self._config_entry.data.get(CONF_ENABLE_FEE_SENSORS, DEFAULT_ENABLE_FEE_SENSORS),
+                    ),
+                ): bool,
+                vol.Required(
+                    CONF_ENABLE_HEALTH_SENSORS,
+                    default=self._config_entry.options.get(
+                        CONF_ENABLE_HEALTH_SENSORS,
+                        self._config_entry.data.get(CONF_ENABLE_HEALTH_SENSORS, DEFAULT_ENABLE_HEALTH_SENSORS),
+                    ),
+                ): bool,
+                vol.Required(
+                    CONF_ENABLE_PORTFOLIO_SENSORS,
+                    default=self._config_entry.options.get(
+                        CONF_ENABLE_PORTFOLIO_SENSORS,
+                        self._config_entry.data.get(CONF_ENABLE_PORTFOLIO_SENSORS, DEFAULT_ENABLE_PORTFOLIO_SENSORS),
+                    ),
+                ): bool,
                 vol.Optional(
                     CONF_API_KEY,
                     default=self._config_entry.options.get(

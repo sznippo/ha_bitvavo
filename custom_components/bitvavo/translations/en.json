@@ -7,6 +7,12 @@
         "data": {
           "markets": "Markets (comma-separated, e.g. BTC-EUR,ETH-EUR)",
           "scan_interval": "Update interval (seconds)",
+          "soft_cleanup": "Disable removed market sensors instead of deleting",
+          "enable_market_sensors": "Enable market sensors",
+          "enable_balance_sensors": "Enable balance sensors",
+          "enable_fee_sensors": "Enable fee sensors",
+          "enable_health_sensors": "Enable health sensors",
+          "enable_portfolio_sensors": "Enable portfolio sensors",
           "api_key": "API key (optional, enables balances/fees)",
           "api_secret": "API secret (optional, enables balances/fees)"
         }
@@ -19,7 +25,13 @@
         "title": "Bitvavo options",
         "data": {
           "markets": "Markets",
-          "scan_interval": "Update interval (seconds)"
+          "scan_interval": "Update interval (seconds)",
+          "soft_cleanup": "Disable removed market sensors instead of deleting",
+          "enable_market_sensors": "Enable market sensors",
+          "enable_balance_sensors": "Enable balance sensors",
+          "enable_fee_sensors": "Enable fee sensors",
+          "enable_health_sensors": "Enable health sensors",
+          "enable_portfolio_sensors": "Enable portfolio sensors"
         }
       }
     }

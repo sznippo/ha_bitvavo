@@ -7,6 +7,12 @@
         "data": {
           "markets": "Maerkte (kommagetrennt, z.B. BTC-EUR,ETH-EUR)",
           "scan_interval": "Aktualisierungsintervall (Sekunden)",
+          "soft_cleanup": "Entfernte Marktsensoren deaktivieren statt loeschen",
+          "enable_market_sensors": "Marktsensoren aktivieren",
+          "enable_balance_sensors": "Portfolio-Sensoren (Bestand) aktivieren",
+          "enable_fee_sensors": "Gebuehrensensoren aktivieren",
+          "enable_health_sensors": "Health-/Diagnose-Sensoren aktivieren",
+          "enable_portfolio_sensors": "Portfolio-Gesamtwertsensoren aktivieren",
           "api_key": "API Key (optional, aktiviert Kontostaende/Gebuehren)",
           "api_secret": "API Secret (optional, aktiviert Kontostaende/Gebuehren)"
         }
@@ -19,7 +25,13 @@
         "title": "Bitvavo Optionen",
         "data": {
           "markets": "Maerkte",
-          "scan_interval": "Aktualisierungsintervall (Sekunden)"
+          "scan_interval": "Aktualisierungsintervall (Sekunden)",
+          "soft_cleanup": "Entfernte Marktsensoren deaktivieren statt loeschen",
+          "enable_market_sensors": "Marktsensoren aktivieren",
+          "enable_balance_sensors": "Portfolio-Sensoren (Bestand) aktivieren",
+          "enable_fee_sensors": "Gebuehrensensoren aktivieren",
+          "enable_health_sensors": "Health-/Diagnose-Sensoren aktivieren",
+          "enable_portfolio_sensors": "Portfolio-Gesamtwertsensoren aktivieren"
         }
       }
     }
