@@ -11,6 +11,7 @@ import paho.mqtt.client as mqtt
 import requests
 
 BASE_URL = "https://api.bitvavo.com/v2"
+ACCESS_WINDOW_MS = "10000"
 
 logging.basicConfig(
     level=logging.INFO,
@@ -52,7 +53,8 @@ class BitvavoClient:
         headers = {
             "Bitvavo-Access-Key": self.api_key,
             "Bitvavo-Access-Timestamp": timestamp_ms,
-            "Bitvavo-Access-Signature": self._signature(timestamp_ms, method, path, body),
+            "Bitvavo-Access-Signature": self._signature(timestamp_ms, method, f"/v2{path}", body),
+            "Bitvavo-Access-Window": ACCESS_WINDOW_MS,
             "Content-Type": "application/json",
         }
 

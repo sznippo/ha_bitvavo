@@ -33,6 +33,7 @@ _LOGGER = logging.getLogger(__name__)
 REQUEST_TIMEOUT = aiohttp.ClientTimeout(total=15)
 MAX_RETRIES = 3
 BASE_RETRY_DELAY = 0.6
+ACCESS_WINDOW_MS = "10000"
 
 
 @dataclass
@@ -87,7 +88,8 @@ class BitvavoApiClient:
                     {
                         "Bitvavo-Access-Key": self._api_key,
                         "Bitvavo-Access-Timestamp": timestamp_ms,
-                        "Bitvavo-Access-Signature": self._signature(timestamp_ms, method, path, body),
+                        "Bitvavo-Access-Signature": self._signature(timestamp_ms, method, f"/v2{path}", body),
+                        "Bitvavo-Access-Window": ACCESS_WINDOW_MS,
                     }
                 )
 
